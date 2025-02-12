@@ -30,6 +30,7 @@ class ProductVariantResource extends Resource
                     ->live()
                     ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                         static::generateSku($state, $get('color_id'), $get('size'), $set);
+                        static::generateName($state, $get('color_id'), $get('size'), $set);
                     }),
                 Forms\Components\Select::make('color_id')
                     ->relationship('color', 'name')
@@ -39,6 +40,7 @@ class ProductVariantResource extends Resource
                     ->live()
                     ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                         static::generateSku($get('product_master_id'), $state, $get('size'), $set);
+                        static::generateName($get('product_master_id'), $state, $get('size'), $set);
                     }),
                 Forms\Components\Select::make('size')
                     ->options([
@@ -51,6 +53,7 @@ class ProductVariantResource extends Resource
                     ->live()
                     ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                         static::generateSku($get('product_master_id'), $get('color_id'), $state, $set);
+                        static::generateName($get('product_master_id'), $get('color_id'), $state, $set);
                     }),
                 Forms\Components\TextInput::make('sku')
                     ->required()
@@ -59,11 +62,25 @@ class ProductVariantResource extends Resource
                     ->disabled(),
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->disabled(),
                 Forms\Components\Textarea::make('description')
                     ->maxLength(65535)
                     ->columnSpanFull(),
             ]);
+    }
+
+    protected static function generateName($masterId, $colorId, $size, Forms\Set $set): void
+    {
+        if (!$masterId || !$colorId || !$size) {
+            return;
+        }
+
+        $masterName = \App\Models\ProductMaster::find($masterId)?->name;
+        $colorName = \App\Models\Color::find($colorId)?->name;
+        
+        $name = "{$masterName} - {$colorName} - {$size}";
+        $set('name', $name);
     }
 
     protected static function generateSku($masterId, $colorId, $size, Forms\Set $set): void
