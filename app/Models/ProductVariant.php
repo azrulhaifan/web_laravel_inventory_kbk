@@ -19,6 +19,13 @@ class ProductVariant extends Model
         'description',
     ];
 
+    public function updateSkuAndName(): void
+    {
+        $this->sku = "{$this->productMaster->sku} - {$this->color->code} - {$this->size}";
+        $this->name = "{$this->productMaster->name} - {$this->color->name} - {$this->size}";
+        $this->save();
+    }
+
     public function productMaster(): BelongsTo
     {
         return $this->belongsTo(ProductMaster::class);
