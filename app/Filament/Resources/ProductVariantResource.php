@@ -59,11 +59,11 @@ class ProductVariantResource extends Resource
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255)
-                    ->disabled(),
+                    ->readOnly(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255)
-                    ->disabled(),
+                    ->readOnly(),
                 Forms\Components\Textarea::make('description')
                     ->maxLength(65535)
                     ->columnSpanFull(),
