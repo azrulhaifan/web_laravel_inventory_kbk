@@ -18,16 +18,6 @@ class VariantsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('product_master_id')
-                    ->relationship('productMaster', 'name')
-                    ->required()
-                    ->searchable()
-                    ->preload()
-                    ->live()
-                    ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
-                        static::generateSku($state, $get('color_id'), $get('size'), $set);
-                        static::generateName($state, $get('color_id'), $get('size'), $set);
-                    }),
                 Forms\Components\Select::make('color_id')
                     ->relationship('color', 'name')
                     ->required()
@@ -35,8 +25,8 @@ class VariantsRelationManager extends RelationManager
                     ->preload()
                     ->live()
                     ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
-                        static::generateSku($get('product_master_id'), $state, $get('size'), $set);
-                        static::generateName($get('product_master_id'), $state, $get('size'), $set);
+                        static::generateSku($this->ownerRecord->id, $state, $get('size'), $set);
+                        static::generateName($this->ownerRecord->id, $state, $get('size'), $set);
                     }),
                 Forms\Components\Select::make('size')
                     ->options([
@@ -48,8 +38,8 @@ class VariantsRelationManager extends RelationManager
                     ->required()
                     ->live()
                     ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
-                        static::generateSku($get('product_master_id'), $get('color_id'), $state, $set);
-                        static::generateName($get('product_master_id'), $get('color_id'), $state, $set);
+                        static::generateSku($this->ownerRecord->id, $get('color_id'), $state, $set);
+                        static::generateName($this->ownerRecord->id, $get('color_id'), $state, $set);
                     }),
                 Forms\Components\TextInput::make('sku')
                     ->required()
