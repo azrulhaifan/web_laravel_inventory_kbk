@@ -50,16 +50,25 @@ class VariantsRelationManager extends RelationManager
                     ]),
                 Forms\Components\Section::make('Basic Information')
                     ->description('SKU & Name is automatically generated from bundle items. While you can edit them, it is recommended to leave them as is.')
+                    // ->extraAttributes(['class' => 'flex items-center justify-between'])
                     ->schema([
                         Forms\Components\TextInput::make('sku')
                             ->required()
                             ->unique(ProductBundleVariant::class, 'sku', ignoreRecord: true)
                             ->maxLength(255)
-                            ->default(fn() => $this->ownerRecord->sku),
+                            ->default(fn() => $this->ownerRecord->sku)
+                            ->readonly(fn(Forms\Get $get): bool => ! $get('enable_editing')),
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255)
-                            ->default(fn() => $this->ownerRecord->name),
+                            ->default(fn() => $this->ownerRecord->name)
+                            ->readonly(fn(Forms\Get $get): bool => ! $get('enable_editing')),
+
+                        Forms\Components\Toggle::make('enable_editing')
+                            ->label('Enable SKU & Name editing')
+                            ->live()
+                            ->default(false)
+                            ->columnSpanFull(),
                         Forms\Components\Textarea::make('description')
                             ->maxLength(65535)
                             ->columnSpanFull(),
