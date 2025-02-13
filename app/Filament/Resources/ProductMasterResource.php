@@ -116,7 +116,7 @@ class ProductMasterResource extends Resource
                     ->label('Variants'),
                 Tables\Columns\TextColumn::make('weight')
                     ->numeric()
-                    ->suffix('kg'),
+                    ->suffix('g'),
                 Tables\Columns\TextColumn::make('total_component_price')
                     ->money('idr')
                     ->sortable(),
