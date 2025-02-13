@@ -50,6 +50,7 @@ class ProductVariantResource extends Resource
                         'M' => 'M',
                         'L' => 'L',
                         'XL' => 'XL',
+                        'NS' => 'NS',
                     ])
                     ->required()
                     ->live()

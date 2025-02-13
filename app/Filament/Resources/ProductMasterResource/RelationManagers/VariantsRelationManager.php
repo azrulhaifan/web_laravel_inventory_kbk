@@ -34,6 +34,7 @@ class VariantsRelationManager extends RelationManager
                         'M' => 'M',
                         'L' => 'L',
                         'XL' => 'XL',
+                        'NS' => 'NS',
                     ])
                     ->required()
                     ->live()
