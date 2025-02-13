@@ -10,7 +10,6 @@ class ProductBundleVariantItem extends Model
     protected $fillable = [
         'product_bundle_variant_id',
         'product_variant_id',
-        'quantity',
     ];
 
     public function bundleVariant(): BelongsTo

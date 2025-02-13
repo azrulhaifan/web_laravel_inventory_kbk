@@ -29,7 +29,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_bundle_variant_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_variant_id')->constrained();
-            $table->integer('quantity')->default(1);
             $table->timestamps();
         });
     }

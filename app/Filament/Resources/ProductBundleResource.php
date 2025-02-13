@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductBundleResource\Pages;
+use App\Filament\Resources\ProductBundleResource\RelationManagers;
 use App\Models\ProductBundle;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -43,6 +44,9 @@ class ProductBundleResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('variants_count')
+                    ->counts('variants')
+                    ->label('Variants'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -64,7 +68,9 @@ class ProductBundleResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            RelationManagers\VariantsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
