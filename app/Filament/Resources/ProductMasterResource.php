@@ -33,6 +33,38 @@ class ProductMasterResource extends Resource
                 Forms\Components\Textarea::make('description')
                     ->maxLength(65535)
                     ->columnSpanFull(),
+                Forms\Components\TextInput::make('weight')
+                    ->numeric()
+                    ->default(0)
+                    ->step(0.01)
+                    ->suffix('kg'),
+                Forms\Components\Section::make('Pricing')
+                    ->schema([
+                        Forms\Components\TextInput::make('price_component_1')
+                            ->label('Material Cost')
+                            ->numeric()
+                            ->default(0)
+                            ->step(0.01),
+                        Forms\Components\TextInput::make('price_component_2')
+                            ->label('Production Cost')
+                            ->numeric()
+                            ->default(0)
+                            ->step(0.01),
+                        Forms\Components\TextInput::make('price_component_3')
+                            ->label('Packaging Cost')
+                            ->numeric()
+                            ->default(0)
+                            ->step(0.01),
+                        Forms\Components\TextInput::make('total_component_price')
+                            ->label('Total Cost')
+                            ->disabled()
+                            ->numeric(),
+                        Forms\Components\TextInput::make('selling_price')
+                            ->label('Selling Price')
+                            ->numeric()
+                            ->default(0)
+                            ->step(0.01),
+                    ])->columns(2),
             ]);
     }
 
@@ -47,6 +79,15 @@ class ProductMasterResource extends Resource
                 Tables\Columns\TextColumn::make('variants_count')
                     ->counts('variants')
                     ->label('Variants'),
+                Tables\Columns\TextColumn::make('weight')
+                    ->numeric()
+                    ->suffix('kg'),
+                Tables\Columns\TextColumn::make('total_component_price')
+                    ->money('idr')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('selling_price')
+                    ->money('idr')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -16,6 +16,14 @@ return new class extends Migration
             $table->string('name');
             $table->string('size');
             $table->text('description')->nullable();
+            $table->decimal('weight', 10, 2)->default(0);
+            $table->decimal('price_component_1', 10, 2)->default(0);
+            $table->decimal('price_component_2', 10, 2)->default(0);
+            $table->decimal('price_component_3', 10, 2)->default(0);
+            $table->decimal('price_component_4', 10, 2)->default(0);
+            $table->decimal('price_component_5', 10, 2)->default(0);
+            $table->decimal('total_component_price', 10, 2)->default(0);
+            $table->decimal('selling_price', 10, 2)->default(0);
             $table->timestamps();
         });
     }
