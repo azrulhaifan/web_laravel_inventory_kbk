@@ -16,6 +16,10 @@ class ColorResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-swatch';
 
+    protected static ?int $navigationSort = 810;
+    protected static ?string $navigationGroup = 'Miscellaneous';
+    protected static ?string $navigationLabel = 'Product Colors';
+
     public static function form(Form $form): Form
     {
         return $form

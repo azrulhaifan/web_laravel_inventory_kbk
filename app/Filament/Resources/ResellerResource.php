@@ -16,7 +16,9 @@ class ResellerResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?string $navigationLabel = 'Resellers';
+    protected static ?int $navigationSort = 210;
+    protected static ?string $navigationGroup = 'Supplier & Reseller';
+    protected static ?string $navigationLabel = 'Resellers Data';
 
     public static function form(Form $form): Form
     {

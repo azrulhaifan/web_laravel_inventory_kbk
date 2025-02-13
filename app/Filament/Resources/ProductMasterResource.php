@@ -18,6 +18,8 @@ class ProductMasterResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?int $navigationSort = 100;
+    protected static ?string $navigationGroup = 'Products';
     protected static ?string $navigationLabel = 'Master Products';
 
     public static function form(Form $form): Form

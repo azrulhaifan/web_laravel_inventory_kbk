@@ -16,6 +16,8 @@ class WarehouseResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
+    protected static ?int $navigationSort = 800;
+    protected static ?string $navigationGroup = 'Miscellaneous';
     protected static ?string $navigationLabel = 'Warehouses';
 
     public static function form(Form $form): Form

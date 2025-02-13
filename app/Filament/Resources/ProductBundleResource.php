@@ -17,6 +17,8 @@ class ProductBundleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-gift';
 
+    protected static ?int $navigationSort = 120;
+    protected static ?string $navigationGroup = 'Products';
     protected static ?string $navigationLabel = 'Product Bundles';
 
     public static function form(Form $form): Form
