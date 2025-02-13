@@ -33,10 +33,11 @@ class ProductMaster extends Model
                 $product->price_component_4 +
                 $product->price_component_5;
         });
-        
+
         static::updated(function ($productMaster) {
             foreach ($productMaster->variants as $variant) {
                 $variant->updateSkuAndName();
+                $variant->updatePricesFromMaster();
             }
         });
     }

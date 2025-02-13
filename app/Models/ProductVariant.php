@@ -45,6 +45,21 @@ class ProductVariant extends Model
         $this->save();
     }
 
+    public function updatePricesFromMaster(): void
+    {
+        $master = $this->productMaster;
+
+        $this->price_component_1 = $master->price_component_1;
+        $this->price_component_2 = $master->price_component_2;
+        $this->price_component_3 = $master->price_component_3;
+        $this->price_component_4 = $master->price_component_4;
+        $this->price_component_5 = $master->price_component_5;
+        $this->total_component_price = $master->total_component_price;
+        $this->selling_price = $master->selling_price;
+
+        $this->save();
+    }
+
     public function productMaster(): BelongsTo
     {
         return $this->belongsTo(ProductMaster::class);
