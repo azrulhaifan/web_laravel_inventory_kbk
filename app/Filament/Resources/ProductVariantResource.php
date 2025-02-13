@@ -85,7 +85,7 @@ class ProductVariantResource extends Resource
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
-                            ->live(debounce: 1000) // 1000ms = 1 second
+                            ->live(onBlur: true) // 1000ms = 1 second
                             ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                                 static::calculateTotal($state, $set, $get);
                             }),
@@ -96,7 +96,7 @@ class ProductVariantResource extends Resource
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
-                            ->live(debounce: 1000)
+                            ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                                 static::calculateTotal($state, $set, $get);
                             }),
@@ -107,7 +107,7 @@ class ProductVariantResource extends Resource
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
-                            ->live(debounce: 1000)
+                            ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                                 static::calculateTotal($state, $set, $get);
                             }),
