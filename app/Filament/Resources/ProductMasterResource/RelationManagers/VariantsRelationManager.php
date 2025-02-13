@@ -53,6 +53,56 @@ class VariantsRelationManager extends RelationManager
                 Forms\Components\Textarea::make('description')
                     ->maxLength(65535)
                     ->columnSpanFull(),
+
+                Forms\Components\Section::make('Price Information')
+                    ->description(function ($record) {
+                        // return $record?->price_component_1 ?? $this->ownerRecord->price_component_1;
+
+                        if (isset($record->total_component_price)) {
+                            return "Individual product variant price only can be configured from product variant menu !";
+                        } else {
+                            return 'All prices will automatically follow the current master product prices';
+                        }
+                    })
+                    ->schema([
+                        Forms\Components\TextInput::make('price_component_1')
+                            ->label('Material Cost')
+                            ->prefix('Rp')
+                            ->disabled()
+                            ->default(function ($record) {
+                                return $record?->price_component_1 ?? $this->ownerRecord->price_component_1;
+                            }),
+                        Forms\Components\TextInput::make('price_component_2')
+                            ->label('Production Cost')
+                            ->prefix('Rp')
+                            ->disabled()
+                            ->default(function ($record) {
+                                return $record?->price_component_2 ?? $this->ownerRecord->price_component_2;
+                            }),
+                        Forms\Components\TextInput::make('price_component_3')
+                            ->label('Packaging Cost')
+                            ->prefix('Rp')
+                            ->disabled()
+                            ->default(function ($record) {
+                                return $record?->price_component_3 ?? $this->ownerRecord->price_component_3;
+                            }),
+                        Forms\Components\TextInput::make('total_component_price')
+                            ->label('Total Cost')
+                            ->prefix('Rp')
+                            ->disabled()
+                            ->default(function ($record) {
+                                return $record?->total_component_price ?? $this->ownerRecord->total_component_price;
+                            }),
+                        Forms\Components\TextInput::make('selling_price')
+                            ->label('Selling Price')
+                            ->prefix('Rp')
+                            ->disabled()
+                            ->default(function ($record) {
+                                return $record?->selling_price ?? $this->ownerRecord->selling_price;
+                            }),
+                    ])
+                    ->columns(2),
+
             ]);
     }
 
@@ -64,7 +114,7 @@ class VariantsRelationManager extends RelationManager
 
         $masterName = \App\Models\ProductMaster::find($masterId)?->name;
         $colorName = \App\Models\Color::find($colorId)?->name;
-        
+
         $name = "{$masterName} - {$colorName} - {$size}";
         $set('name', $name);
     }
@@ -77,7 +127,7 @@ class VariantsRelationManager extends RelationManager
 
         $masterSku = \App\Models\ProductMaster::find($masterId)?->sku;
         $colorCode = \App\Models\Color::find($colorId)?->code;
-        
+
         $sku = "{$masterSku} - {$colorCode} - {$size}";
         $set('sku', $sku);
     }
