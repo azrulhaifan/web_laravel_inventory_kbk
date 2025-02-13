@@ -56,8 +56,6 @@ class VariantsRelationManager extends RelationManager
 
                 Forms\Components\Section::make('Price Information')
                     ->description(function ($record) {
-                        // return $record?->price_component_1 ?? $this->ownerRecord->price_component_1;
-
                         if (isset($record->total_component_price)) {
                             return "Individual product variant price only can be configured from product variant menu !";
                         } else {
