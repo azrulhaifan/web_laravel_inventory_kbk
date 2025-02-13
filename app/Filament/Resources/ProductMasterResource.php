@@ -8,6 +8,7 @@ use App\Models\ProductMaster;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -35,37 +36,71 @@ class ProductMasterResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('weight')
                     ->numeric()
-                    ->default(0)
-                    ->step(0.01)
-                    ->suffix('kg'),
+                    ->mask("999999999999")
+                    ->stripCharacters('.,')
+                    ->minValue(0)
+                    ->suffix('g'),
                 Forms\Components\Section::make('Pricing')
                     ->schema([
                         Forms\Components\TextInput::make('price_component_1')
                             ->label('Material Cost')
+                            ->prefix("Rp")
                             ->numeric()
-                            ->default(0)
-                            ->step(0.01),
+                            ->mask(RawJs::make('$money($input)'))
+                            ->stripCharacters(',')
+                            ->step(1)
+                            ->live(debounce: 1000) // 1000ms = 1 second
+                            ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
+                                static::calculateTotal($state, $set, $get);
+                            }),
                         Forms\Components\TextInput::make('price_component_2')
                             ->label('Production Cost')
+                            ->prefix("Rp")
                             ->numeric()
-                            ->default(0)
-                            ->step(0.01),
+                            ->mask(RawJs::make('$money($input)'))
+                            ->stripCharacters(',')
+                            ->step(1)
+                            ->live(debounce: 1000)
+                            ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
+                                static::calculateTotal($state, $set, $get);
+                            }),
                         Forms\Components\TextInput::make('price_component_3')
                             ->label('Packaging Cost')
+                            ->prefix("Rp")
                             ->numeric()
-                            ->default(0)
-                            ->step(0.01),
+                            ->mask(RawJs::make('$money($input)'))
+                            ->stripCharacters(',')
+                            ->step(1)
+                            ->live(debounce: 1000)
+                            ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
+                                static::calculateTotal($state, $set, $get);
+                            }),
                         Forms\Components\TextInput::make('total_component_price')
                             ->label('Total Cost')
-                            ->disabled()
-                            ->numeric(),
+                            ->prefix("Rp")
+                            ->numeric()
+                            ->mask(RawJs::make('$money($input)'))
+                            ->stripCharacters(',')
+                            ->disabled(),
                         Forms\Components\TextInput::make('selling_price')
                             ->label('Selling Price')
+                            ->prefix("Rp")
                             ->numeric()
-                            ->default(0)
-                            ->step(0.01),
+                            ->mask(RawJs::make('$money($input)'))
+                            ->stripCharacters(',')
+                            ->step(1),
                     ])->columns(2),
             ]);
+    }
+
+    protected static function calculateTotal($state, Forms\Set $set, $get): void
+    {
+        $component1 = (float) str_replace(',', '', $get('price_component_1')) ?? 0;
+        $component2 = (float) str_replace(',', '', $get('price_component_2')) ?? 0;
+        $component3 = (float) str_replace(',', '', $get('price_component_3')) ?? 0;
+
+        $total = $component1 + $component2 + $component3;
+        $set('total_component_price', $total);
     }
 
     public static function table(Table $table): Table
