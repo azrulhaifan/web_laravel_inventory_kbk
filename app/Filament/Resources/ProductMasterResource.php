@@ -36,7 +36,7 @@ class ProductMasterResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('weight')
                     ->numeric()
-                    ->mask("999999999999")
+                    ->mask("9999999999")
                     ->stripCharacters('.,')
                     ->minValue(0)
                     ->suffix('g'),
