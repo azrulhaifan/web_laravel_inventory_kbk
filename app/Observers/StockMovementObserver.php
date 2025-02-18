@@ -60,16 +60,6 @@ class StockMovementObserver
                         ) min_stocks ON pbv.id = min_stocks.product_bundle_variant_id
                         SET pbv.min_stock = min_stocks.min_stock
                     ", [$stockMovement->product_variant_id]);
-                    $affectedBundleIds = ProductBundleVariantItem::where('product_variant_id', $stockMovement->product_variant_id)
-                        ->pluck('product_bundle_variant_id');
-
-                    foreach ($affectedBundleIds as $bundleId) {
-                        $minStock = ProductBundleVariantItem::where('product_bundle_variant_id', $bundleId)
-                            ->join('product_variants', 'product_bundle_variant_items.product_variant_id', '=', 'product_variants.id')
-                            ->min('product_variants.current_stock') ?? 0;
-
-                        ProductBundleVariant::where('id', $bundleId)->update(['min_stock' => $minStock]);
-                    }
 
                     Log::info('Stock updated successfully', [
                         'product_id' => $stockMovement->product_variant_id,
