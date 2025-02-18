@@ -5,15 +5,20 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductBundleResource\Pages;
 use App\Filament\Resources\ProductBundleResource\RelationManagers;
 use App\Models\ProductBundle;
+use App\Models\ProductMaster;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductBundleResource extends Resource
 {
-    protected static ?string $model = ProductBundle::class;
+    protected static ?string $model = ProductMaster::class;
+
+    protected static ?string $modelLabel = 'Product Bundle';
+    protected static ?string $pluralModelLabel = 'Product Bundles';
 
     protected static ?string $navigationIcon = 'heroicon-o-gift';
 
@@ -21,10 +26,17 @@ class ProductBundleResource extends Resource
     protected static ?string $navigationGroup = 'Products';
     protected static ?string $navigationLabel = 'Product Bundles';
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('is_bundling', 1);
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\Hidden::make('is_bundling')
+                    ->default(1),
                 Forms\Components\TextInput::make('sku')
                     ->required()
                     ->unique(ignoreRecord: true)

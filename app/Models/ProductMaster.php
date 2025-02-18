@@ -23,6 +23,7 @@ class ProductMaster extends Model
         'price_component_5',
         'total_component_price',
         'selling_price',
+        'is_bundling',
     ];
 
     protected static function booted(): void
