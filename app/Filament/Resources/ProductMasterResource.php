@@ -56,7 +56,7 @@ class ProductMasterResource extends Resource
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
-                            ->live(debounce: 1000) // 1000ms = 1 second
+                            ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                                 static::calculateTotal($state, $set, $get);
                             }),
@@ -67,7 +67,7 @@ class ProductMasterResource extends Resource
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
-                            ->live(debounce: 1000)
+                            ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                                 static::calculateTotal($state, $set, $get);
                             }),
@@ -78,7 +78,7 @@ class ProductMasterResource extends Resource
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
-                            ->live(debounce: 1000)
+                            ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                                 static::calculateTotal($state, $set, $get);
                             }),
@@ -123,7 +123,7 @@ class ProductMasterResource extends Resource
                     ->label('Variants'),
                 Tables\Columns\TextColumn::make('weight')
                     ->numeric()
-                    ->suffix('kg'),
+                    ->suffix('g'),
                 Tables\Columns\TextColumn::make('total_component_price')
                     ->money('idr')
                     ->sortable(),
