@@ -44,7 +44,22 @@ class StockMovementObserver
                     ProductBundleVariantItem::where('product_variant_id', $stockMovement->product_variant_id)
                         ->update(['current_stock' => $totalStock]);
 
-                    // Update min_stock for affected bundles
+                    // Update min_stock for affected bundles in single query
+                    DB::statement("
+                        UPDATE product_bundle_variants pbv
+                        INNER JOIN (
+                            SELECT pbi.product_bundle_variant_id, MIN(pv.current_stock) as min_stock
+                            FROM product_bundle_variant_items pbi
+                            JOIN product_variants pv ON pbi.product_variant_id = pv.id
+                            WHERE pbi.product_bundle_variant_id IN (
+                                SELECT DISTINCT product_bundle_variant_id 
+                                FROM product_bundle_variant_items 
+                                WHERE product_variant_id = ?
+                            )
+                            GROUP BY pbi.product_bundle_variant_id
+                        ) min_stocks ON pbv.id = min_stocks.product_bundle_variant_id
+                        SET pbv.min_stock = min_stocks.min_stock
+                    ", [$stockMovement->product_variant_id]);
                     $affectedBundleIds = ProductBundleVariantItem::where('product_variant_id', $stockMovement->product_variant_id)
                         ->pluck('product_bundle_variant_id');
 
