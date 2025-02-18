@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductMasterResource extends Resource
 {
@@ -18,9 +19,12 @@ class ProductMasterResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?int $navigationSort = 100;
-    protected static ?string $navigationGroup = 'Products';
     protected static ?string $navigationLabel = 'Master Products';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('is_bundling', 0);
+    }
 
     public static function form(Form $form): Form
     {
@@ -38,8 +42,7 @@ class ProductMasterResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('weight')
                     ->numeric()
-                    ->mask("9999999999")
-                    ->stripCharacters('.,')
+                    ->step(1)
                     ->minValue(0)
                     ->suffix('g'),
                 Forms\Components\Section::make('Pricing')
@@ -51,7 +54,7 @@ class ProductMasterResource extends Resource
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
-                            ->live(onBlur: true)
+                            ->live(debounce: 1000) // 1000ms = 1 second
                             ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                                 static::calculateTotal($state, $set, $get);
                             }),
@@ -62,7 +65,7 @@ class ProductMasterResource extends Resource
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
-                            ->live(onBlur: true)
+                            ->live(debounce: 1000)
                             ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                                 static::calculateTotal($state, $set, $get);
                             }),
@@ -73,7 +76,7 @@ class ProductMasterResource extends Resource
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
-                            ->live(onBlur: true)
+                            ->live(debounce: 1000)
                             ->afterStateUpdated(function ($state, Forms\Set $set, $context, $get) {
                                 static::calculateTotal($state, $set, $get);
                             }),
@@ -118,7 +121,7 @@ class ProductMasterResource extends Resource
                     ->label('Variants'),
                 Tables\Columns\TextColumn::make('weight')
                     ->numeric()
-                    ->suffix('g'),
+                    ->suffix('kg'),
                 Tables\Columns\TextColumn::make('total_component_price')
                     ->money('idr')
                     ->sortable(),
