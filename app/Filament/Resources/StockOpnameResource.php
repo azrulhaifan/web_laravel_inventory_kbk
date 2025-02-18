@@ -28,17 +28,82 @@ class StockOpnameResource extends Resource
             ->schema([
                 Forms\Components\Select::make('warehouse_id')
                     ->relationship('warehouse', 'name')
-                    ->required(),
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                        $productVariantId = $get('product_variant_id');
+                        if (!$state || !$productVariantId) {
+                            $set('current_stock', 0);
+                            $set('quantity', 0);
+                            return;
+                        }
+
+                        $stock = \App\Models\Stock::where('warehouse_id', $state)
+                            ->where('product_variant_id', $productVariantId)
+                            ->first();
+
+                        $currentStock = $stock ? $stock->quantity : 0;
+                        $realStock = (int) $get('real_stock');
+
+                        $set('current_stock', $currentStock);
+                        $set('quantity', $realStock - $currentStock);
+                    }),
                 Forms\Components\Select::make('product_variant_id')
                     ->relationship('productVariant', 'name')
                     ->required()
                     ->searchable()
-                    ->preload(),
-                Forms\Components\TextInput::make('quantity')
-                    ->required()
-                    ->numeric()
+                    ->preload()
+                    ->live()
+                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                        $warehouseId = $get('warehouse_id');
+                        if (!$state || !$warehouseId) {
+                            $set('current_stock', 0);
+                            return;
+                        }
+
+                        $stock = \App\Models\Stock::where('warehouse_id', $warehouseId)
+                            ->where('product_variant_id', $state)
+                            ->first();
+
+                        $set('current_stock', $stock ? $stock->quantity : 0);
+                    }),
+                Forms\Components\TextInput::make('current_stock')
+                    ->label('Current Stock')
+                    ->disabled()
+                    ->dehydrated(false)
                     ->default(0)
-                    ->notIn([0]),
+                    ->afterStateUpdated(function (Forms\Get $get, $state) {
+                        $warehouseId = $get('warehouse_id');
+                        $productVariantId = $get('product_variant_id');
+
+                        if (!$warehouseId || !$productVariantId) return 0;
+
+                        $stock = \App\Models\Stock::where('warehouse_id', $warehouseId)
+                            ->where('product_variant_id', $productVariantId)
+                            ->first();
+
+                        return $stock ? $stock->quantity : 0;
+                    })
+                    ->live(),
+                Forms\Components\TextInput::make('real_stock')
+                    ->label('Real Stock Count')
+                    ->numeric()
+                    ->required()
+                    ->live(onBlur: true)
+                    ->default(0)
+                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                        $currentStock = (int) $get('current_stock');
+                        $realStock = (int) $state;
+                        $set('quantity', $realStock - $currentStock);
+                    }),
+                Forms\Components\TextInput::make('quantity')
+                    ->label('Stock Difference')
+                    ->disabled()
+                    ->default(function (Forms\Get $get) {
+                        $realStock = (int) $get('real_stock');
+                        $currentStock = (int) $get('current_stock');
+                        return $realStock - $currentStock;
+                    }),
                 Forms\Components\Hidden::make('type')
                     ->default('opname'),
                 Forms\Components\Hidden::make('stock_movement_status_id')
