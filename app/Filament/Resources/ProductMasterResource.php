@@ -35,7 +35,11 @@ class ProductMasterResource extends Resource
                 Forms\Components\TextInput::make('sku')
                     ->required()
                     ->unique(ignoreRecord: true)
-                    ->maxLength(255),
+                    ->maxLength(10)
+                    ->formatStateUsing(fn($state) => strtoupper($state ?? ''))
+                    ->dehydrateStateUsing(fn($state) => strtoupper($state))
+                    ->placeholder('ENTER SKU IN UPPERCASE')
+                    ->extraInputAttributes(['style' => 'text-transform: uppercase']),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -46,6 +50,7 @@ class ProductMasterResource extends Resource
                     ->numeric()
                     ->step(1)
                     ->minValue(0)
+                    ->default(0)
                     ->suffix('g'),
                 Forms\Components\Section::make('Pricing')
                     ->schema([
@@ -53,6 +58,7 @@ class ProductMasterResource extends Resource
                             ->label('Material Cost')
                             ->prefix("Rp")
                             ->numeric()
+                            ->default(0)
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
@@ -64,6 +70,7 @@ class ProductMasterResource extends Resource
                             ->label('Production Cost')
                             ->prefix("Rp")
                             ->numeric()
+                            ->default(0)
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
@@ -75,6 +82,7 @@ class ProductMasterResource extends Resource
                             ->label('Packaging Cost')
                             ->prefix("Rp")
                             ->numeric()
+                            ->default(0)
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1)
@@ -86,6 +94,7 @@ class ProductMasterResource extends Resource
                             ->label('Total Cost')
                             ->prefix("Rp")
                             ->numeric()
+                            ->default(0)
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->disabled(),
@@ -93,6 +102,7 @@ class ProductMasterResource extends Resource
                             ->label('Selling Price')
                             ->prefix("Rp")
                             ->numeric()
+                            ->default(0)
                             ->mask(RawJs::make('$money($input)'))
                             ->stripCharacters(',')
                             ->step(1),
