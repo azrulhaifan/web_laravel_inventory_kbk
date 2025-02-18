@@ -66,9 +66,13 @@ class VariantsRelationManager extends RelationManager
                         Forms\Components\TextInput::make('sku')
                             ->required()
                             ->unique(ProductBundleVariant::class, 'sku', ignoreRecord: true)
-                            ->maxLength(255)
+                            ->maxLength(50)
                             ->default(fn() => $this->ownerRecord->sku)
-                            ->readonly(fn(Forms\Get $get): bool => ! $get('enable_editing')),
+                            ->readonly(fn(Forms\Get $get): bool => ! $get('enable_editing'))
+                            ->formatStateUsing(fn($state) => strtoupper($state ?? ''))
+                            ->dehydrateStateUsing(fn($state) => strtoupper($state))
+                            ->placeholder('ENTER SKU IN UPPERCASE')
+                            ->extraInputAttributes(['style' => 'text-transform: uppercase']),
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255)
