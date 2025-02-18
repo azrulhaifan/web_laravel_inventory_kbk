@@ -6,6 +6,10 @@ use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+// THIS OBSERVER TURNED OFF FOR NOW
+// NEED MORE COMPLEX LOGIC TO WORK PROPERLY
+// NEED CALCULATION WHEN MASTER PRODUCT IS UPDATED
+
 class ProductVariantObserver
 {
     public function updated(ProductVariant $variant): void
