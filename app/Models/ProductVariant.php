@@ -25,6 +25,7 @@ class ProductVariant extends Model
         'price_component_5',
         'total_component_price',
         'selling_price',
+        'current_stock',
     ];
 
     protected static function booted(): void

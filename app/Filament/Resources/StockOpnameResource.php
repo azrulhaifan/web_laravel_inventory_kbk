@@ -38,7 +38,7 @@ class StockOpnameResource extends Resource
                     ->required()
                     ->numeric()
                     ->default(0)
-                    ->minValue(1),
+                    ->notIn([0]),
                 Forms\Components\Hidden::make('type')
                     ->default('opname'),
                 Forms\Components\Hidden::make('stock_movement_status_id')
