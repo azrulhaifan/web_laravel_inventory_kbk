@@ -31,47 +31,77 @@ class StockInResource extends Resource
             ->latest();
     }
 
-    public static function form(Form $form): Form
+    public static function getFormSchema(string $operation = null): array
     {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('warehouse_id')
-                    ->relationship('warehouse', 'name')
-                    ->required()
-                    ->searchable()
-                    ->preload()
-                    ->columnSpanFull(),
-
-                Forms\Components\Repeater::make('items')
+        if ($operation === 'view') {
+            return [
+                Forms\Components\Section::make()
                     ->schema([
+                        Forms\Components\Select::make('warehouse_id')
+                            ->relationship('warehouse', 'name')
+                            ->disabled(),
+
                         Forms\Components\Select::make('product_variant_id')
                             ->relationship('productVariant', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload(),
+                            ->disabled(),
+
                         Forms\Components\TextInput::make('quantity')
-                            ->numeric()
-                            ->required()
-                            ->minValue(1)
-                            ->default(1),
+                            ->disabled(),
+
+                        Forms\Components\Textarea::make('notes')
+                            ->disabled()
+                            ->columnSpanFull(),
                     ])
-                    ->columns(2)
-                    ->defaultItems(1)
-                    ->addActionLabel('Add Product')
-                    ->collapsible()
-                    ->cloneable()
-                    ->columnSpanFull(),
+                    ->columns(2),
+            ];
+        }
 
-                Forms\Components\Hidden::make('type')
-                    ->default('in'),
+        return [
+            Forms\Components\Select::make('warehouse_id')
+                ->relationship('warehouse', 'name')
+                ->required()
+                ->searchable()
+                ->preload()
+                ->columnSpanFull(),
 
-                Forms\Components\Hidden::make('stock_movement_status_id')
-                    ->default(1),
+            Forms\Components\Repeater::make('items')
+                ->schema([
+                    Forms\Components\Select::make('product_variant_id')
+                        ->relationship('productVariant', 'name')
+                        ->required()
+                        ->searchable()
+                        ->preload(),
+                    Forms\Components\TextInput::make('quantity')
+                        ->numeric()
+                        ->required()
+                        ->minValue(1)
+                        ->default(1),
+                ])
+                ->columns(2)
+                ->defaultItems(1)
+                ->addActionLabel('Add Product')
+                ->collapsible()
+                ->cloneable()
+                ->columnSpanFull(),
 
-                Forms\Components\Textarea::make('notes')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-            ]);
+            Forms\Components\Hidden::make('type')
+                ->default('in'),
+
+            Forms\Components\Hidden::make('reference_type')
+                ->default('direct'),
+
+            Forms\Components\Hidden::make('stock_movement_status_id')
+                ->default(1),
+
+            Forms\Components\Textarea::make('notes')
+                ->maxLength(65535)
+                ->columnSpanFull(),
+        ];
+    }
+
+    public static function form(Form $form): Form
+    {
+        return $form->schema(static::getFormSchema($form->getOperation()));
     }
 
     public static function table(Table $table): Table
