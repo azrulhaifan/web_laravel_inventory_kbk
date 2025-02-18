@@ -55,6 +55,13 @@ class ProductMaster extends Model
                     'product_variants.sku' => DB::raw("CONCAT('{$productMaster->sku}', ' - ', colors.code, ' - ', product_variants.size)"),
                     'product_variants.name' => DB::raw("CONCAT('{$productMaster->name}', ' - ', colors.name, ' - ', product_variants.size)"),
                 ]);
+
+            // Update bundle variants
+            $productMaster->bundleVariants()
+                ->update([
+                    'sku' => DB::raw("REGEXP_REPLACE(sku, '^[^-]+', '{$productMaster->sku} ')"),
+                    'name' => DB::raw("REGEXP_REPLACE(name, '^[^-]+', '{$productMaster->name} ')")
+                ]);
         });
     }
 
@@ -65,6 +72,6 @@ class ProductMaster extends Model
 
     public function bundleVariants(): HasMany
     {
-        return $this->hasMany(ProductBundleVariant::class, 'product_master_id');
+        return $this->hasMany(ProductBundleVariant::class);
     }
 }
