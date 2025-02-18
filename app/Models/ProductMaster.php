@@ -62,4 +62,9 @@ class ProductMaster extends Model
     {
         return $this->hasMany(ProductVariant::class);
     }
+
+    public function bundleVariants(): HasMany
+    {
+        return $this->hasMany(ProductBundleVariant::class, 'product_master_id');
+    }
 }

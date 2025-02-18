@@ -58,8 +58,8 @@ class ProductBundleResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('variants_count')
-                    ->counts('variants')
+                Tables\Columns\TextColumn::make('bundle_variants_count')
+                    ->counts('bundleVariants')
                     ->label('Variants'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

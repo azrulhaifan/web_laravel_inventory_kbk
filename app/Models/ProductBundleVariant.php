@@ -9,15 +9,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ProductBundleVariant extends Model
 {
     protected $fillable = [
-        'product_bundle_id',
+        'product_master_id',
         'sku',
         'name',
         'description',
     ];
 
-    public function bundle(): BelongsTo
+    public function productMaster(): BelongsTo
     {
-        return $this->belongsTo(ProductBundle::class, 'product_bundle_id');
+        return $this->belongsTo(ProductMaster::class, 'product_master_id');
     }
 
     public function items(): HasMany

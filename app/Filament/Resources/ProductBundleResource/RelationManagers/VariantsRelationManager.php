@@ -11,7 +11,7 @@ use Filament\Tables\Table;
 
 class VariantsRelationManager extends RelationManager
 {
-    protected static string $relationship = 'variants';
+    protected static string $relationship = 'bundleVariants';
 
     public function form(Form $form): Form
     {
