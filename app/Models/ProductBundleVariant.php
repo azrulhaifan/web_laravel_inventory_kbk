@@ -13,6 +13,7 @@ class ProductBundleVariant extends Model
         'sku',
         'name',
         'description',
+        'min_price',
     ];
 
     public function productMaster(): BelongsTo

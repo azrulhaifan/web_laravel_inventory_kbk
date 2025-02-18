@@ -99,6 +99,9 @@ class VariantsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('items_count')
                     ->counts('items')
                     ->label('Items'),
+                Tables\Columns\TextColumn::make('min_stock')
+                    ->label('Available Stock')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\StockMovement;
 use App\Models\Stock;
 use App\Models\ProductBundleVariantItem;
+use App\Models\ProductBundleVariant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -39,9 +40,21 @@ class StockMovementObserver
                         'current_stock' => $totalStock
                     ]);
 
-                    // Update all bundle items in single query
+                    // Update bundle items current_stock
                     ProductBundleVariantItem::where('product_variant_id', $stockMovement->product_variant_id)
                         ->update(['current_stock' => $totalStock]);
+
+                    // Update min_stock for affected bundles
+                    $affectedBundleIds = ProductBundleVariantItem::where('product_variant_id', $stockMovement->product_variant_id)
+                        ->pluck('product_bundle_variant_id');
+
+                    foreach ($affectedBundleIds as $bundleId) {
+                        $minStock = ProductBundleVariantItem::where('product_bundle_variant_id', $bundleId)
+                            ->join('product_variants', 'product_bundle_variant_items.product_variant_id', '=', 'product_variants.id')
+                            ->min('product_variants.current_stock') ?? 0;
+
+                        ProductBundleVariant::where('id', $bundleId)->update(['min_stock' => $minStock]);
+                    }
 
                     Log::info('Stock updated successfully', [
                         'product_id' => $stockMovement->product_variant_id,
