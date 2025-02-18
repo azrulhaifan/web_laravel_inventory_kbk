@@ -75,5 +75,7 @@ class StockMovementObserver
                 ]);
             }
         }
+
+        // TODO : update stock for stock-in
     }
 }
