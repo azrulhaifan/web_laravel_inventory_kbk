@@ -94,11 +94,13 @@ class StockOpnameResource extends Resource
                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                         $currentStock = (int) $get('current_stock');
                         $realStock = (int) $state;
-                        $set('quantity', $realStock - $currentStock);
+                        $difference = $realStock - $currentStock;
+                        $set('quantity', $difference);
+                        $set('notes', "adjust stock qty from {$currentStock} to {$realStock} with different qty : {$difference}");
                     }),
                 Forms\Components\TextInput::make('quantity')
                     ->label('Stock Difference')
-                    ->disabled()
+                    ->readOnly()
                     ->default(function (Forms\Get $get) {
                         $realStock = (int) $get('real_stock');
                         $currentStock = (int) $get('current_stock');
