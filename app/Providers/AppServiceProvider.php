@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\ProductVariant;
 use App\Models\StockMovement;
+use App\Observers\ProductVariantObserver;
 use App\Observers\StockMovementObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        ProductVariant::observe(ProductVariantObserver::class);
         StockMovement::observe(StockMovementObserver::class);
     }
 }

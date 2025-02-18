@@ -33,6 +33,12 @@ class BundleVariantResource extends Resource
                 Tables\Columns\TextColumn::make('min_stock')
                     ->label('Available Stock')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('buying_price')
+                    ->money('IDR')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('selling_price')
+                    ->money('IDR')
+                    ->sortable(),
             ])
             ->filters([
                 //
