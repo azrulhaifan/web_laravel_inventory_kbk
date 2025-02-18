@@ -174,7 +174,8 @@ class ProductVariantResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('productMaster.name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('sku')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name')
@@ -185,13 +186,25 @@ class ProductVariantResource extends Resource
                 Tables\Columns\TextColumn::make('color.name')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('current_stock')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('size')
+                    ->options([
+                        'S' => 'S',
+                        'M' => 'M',
+                        'L' => 'L',
+                        'XL' => 'XL',
+                        'NS' => 'NS',
+                    ]),
+                Tables\Filters\SelectFilter::make('color')
+                    ->relationship('color', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
