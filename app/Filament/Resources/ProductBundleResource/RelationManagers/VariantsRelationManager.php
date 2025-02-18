@@ -28,6 +28,17 @@ class VariantsRelationManager extends RelationManager
                                     ->searchable()
                                     ->preload()
                                     ->live()
+                                    ->options(function (Forms\Get $get): array {
+                                        $selectedVariants = collect($get('../../items'))
+                                            ->pluck('product_variant_id')
+                                            ->filter();
+
+                                        return \App\Models\ProductVariant::query()
+                                            ->whereNotIn('id', $selectedVariants)
+                                            ->get()
+                                            ->pluck('name', 'id')
+                                            ->toArray();
+                                    })
                                     ->afterStateUpdated(function ($state, Forms\Set $set) {
                                         $variant = \App\Models\ProductVariant::find($state);
                                         if (!$variant) return;
