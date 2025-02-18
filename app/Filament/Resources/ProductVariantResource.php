@@ -182,12 +182,21 @@ class ProductVariantResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('size')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('color.name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('current_stock')
                     ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('total_component_price')
+                    ->label('Buying Price')
+                    ->money('IDR')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('selling_price')
+                    ->money('IDR')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
