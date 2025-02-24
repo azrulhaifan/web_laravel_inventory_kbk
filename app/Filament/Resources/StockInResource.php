@@ -154,7 +154,23 @@ class StockInResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('warehouse_id')
+                    ->relationship('warehouse', 'name')
+                    ->label('Warehouse')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\SelectFilter::make('supplier_id')
+                    ->relationship('supplier', 'name')
+                    ->label('Supplier')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\SelectFilter::make('stock_in_status_id')
+                    ->label('Status')
+                    ->options([
+                        2 => 'Draft / Pending',
+                        1 => 'Completed',
+                        3 => 'Cancelled',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
