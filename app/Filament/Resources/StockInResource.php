@@ -128,6 +128,7 @@ class StockInResource extends Resource
                     ]),
 
                 Forms\Components\Textarea::make('notes')
+                    ->placeholder('Write any addional information here')
                     ->columnSpanFull(),
             ]);
     }
