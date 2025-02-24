@@ -209,6 +209,13 @@ class StockOutResource extends Resource
                     ->label('Item')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status.name')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Draft / Pending' => 'warning',
+                        'Completed' => 'success',
+                        'Cancelled' => 'danger',
+                        default => 'gray',
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
