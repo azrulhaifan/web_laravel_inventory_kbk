@@ -79,7 +79,7 @@ class StockOutResource extends Resource
                             ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Get $get): array {
                                 return [
                                     ...$data,
-                                    'warehouse_id' => $get('warehouse_id'),
+                                    // 'warehouse_id' => $get('warehouse_id'),
                                     'type' => 'out',
                                     'stock_movement_status_id' => $get('stock_out_status_id'),
                                     'quantity' => -abs($data['quantity']), // Convert to negative
@@ -88,7 +88,7 @@ class StockOutResource extends Resource
                             ->mutateRelationshipDataBeforeSaveUsing(function (array $data, Forms\Get $get): array {
                                 return [
                                     ...$data,
-                                    'warehouse_id' => $get('warehouse_id'),
+                                    // 'warehouse_id' => $get('warehouse_id'),
                                     'type' => 'out',
                                     'stock_movement_status_id' => $get('stock_out_status_id'),
                                     'quantity' => -abs($data['quantity']), // Convert to negative
@@ -101,25 +101,73 @@ class StockOutResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->live()
-                                    ->options(function (Forms\Get $get): array {
-                                        $selectedVariants = collect($get('../../stockMovements'))
-                                            ->pluck('product_variant_id')
-                                            ->filter();
-
+                                    ->afterStateUpdated(function (Forms\Set $set) {
+                                        $set('warehouse_id', null);
+                                        $set('quantity', 1);
+                                    })
+                                    ->options(function (): array {
                                         return \App\Models\ProductVariant::query()
-                                            ->whereNotIn('id', $selectedVariants)
+                                            ->whereHas('stocks', function ($query) {
+                                                $query->where('quantity', '>', 0);
+                                            })
                                             ->get()
                                             ->pluck('name', 'id')
                                             ->toArray();
                                     }),
+
+                                Forms\Components\Select::make('warehouse_id')
+                                    ->relationship('warehouse', 'name')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                    ->live()
+                                    ->afterStateUpdated(function (Forms\Set $set) {
+                                        $set('quantity', 1);
+                                    })
+                                    ->options(function (Forms\Get $get): array {
+                                        $variantId = $get('product_variant_id');
+                                        if (!$variantId) return [];
+
+                                        return \App\Models\Warehouse::query()
+                                            ->whereHas('stocks', function ($query) use ($variantId) {
+                                                $query->where('product_variant_id', $variantId)
+                                                    ->where('quantity', '>', 0);
+                                            })
+                                            ->get()
+                                            ->pluck('name', 'id')
+                                            ->toArray();
+                                    })
+                                    ->visible(fn(Forms\Get $get) => (bool) $get('product_variant_id')),
+
                                 Forms\Components\TextInput::make('quantity')
                                     ->numeric()
                                     ->required()
                                     ->minValue(1)
                                     ->default(1)
-                                    ->formatStateUsing(fn($state) => abs($state)), // Show positive number
+                                    ->live()
+                                    ->formatStateUsing(fn($state) => abs($state))
+                                    ->rules([
+                                        function (Forms\Get $get) {
+                                            return function (string $attribute, $value, \Closure $fail) use ($get) {
+                                                $warehouseId = $get('warehouse_id');
+                                                $variantId = $get('product_variant_id');
+
+                                                if (!$warehouseId || !$variantId) return;
+
+                                                $currentStock = \App\Models\Stock::where([
+                                                    'warehouse_id' => $warehouseId,
+                                                    'product_variant_id' => $variantId,
+                                                ])->value('quantity') ?? 0;
+
+                                                if ($value > $currentStock) {
+                                                    $fail("Insufficient stock. Available: {$currentStock}");
+                                                }
+                                            };
+                                        }
+                                    ])
+                                    ->visible(fn(Forms\Get $get) => (bool) $get('warehouse_id')),
                             ])
-                            ->columns(2)
+                            ->columns(3)
                             ->defaultItems(1)
                             ->addActionLabel('Add Item')
                             ->reorderable()
