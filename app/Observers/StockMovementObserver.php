@@ -18,8 +18,8 @@ class StockMovementObserver
             'status' => $stockMovement->stock_movement_status_id
         ]);
 
-        if (($stockMovement->type === 'opname' || $stockMovement->type === 'in') &&
-            $stockMovement->stock_movement_status_id === 1
+        if (($stockMovement->type === 'opname' || $stockMovement->type === 'in' || $stockMovement->type === 'out') &&
+            (int) $stockMovement->stock_movement_status_id === 1
         ) {
             try {
                 DB::transaction(function () use ($stockMovement) {
@@ -30,7 +30,7 @@ class StockMovementObserver
                             'product_variant_id' => $stockMovement->product_variant_id,
                         ],
                         [
-                            'quantity' => DB::raw('quantity + ' . $stockMovement->quantity)
+                            'quantity' => DB::raw('quantity + ' . $stockMovement->quantity) // quantity will be negative for 'out' type
                         ]
                     );
 
@@ -91,7 +91,7 @@ class StockMovementObserver
         ]);
 
         if (
-            $stockMovement->type === 'in' &&
+            ($stockMovement->type === 'in' || $stockMovement->type === 'out') &&
             (int) $stockMovement->stock_movement_status_id === 1 &&
             (int) $stockMovement->getOriginal('stock_movement_status_id') !== (int) $stockMovement->stock_movement_status_id
         ) {
