@@ -137,14 +137,17 @@ class StockInResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->modalHeading('Stock In Details'),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn(StockIn $record): bool => $record->stock_in_status_id === 2), // Only for Draft/Pending
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn(StockIn $record): bool => in_array($record->stock_in_status_id, [2])), // Only for Draft/Pending
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                //
+            ])
+            ->recordUrl(fn(StockIn $record): string => Pages\ViewStockIn::getUrl(['record' => $record]));
     }
 
     public static function getPages(): array
@@ -152,6 +155,7 @@ class StockInResource extends Resource
         return [
             'index' => Pages\ListStockIns::route('/'),
             'create' => Pages\CreateStockIn::route('/create'),
+            'view' => Pages\ViewStockIn::route('/{record}'),
             'edit' => Pages\EditStockIn::route('/{record}/edit'),
         ];
     }
