@@ -3,9 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\StockInStatus;
+use App\Models\StockOutStatus;
 use Illuminate\Database\Seeder;
 
-class StockInStatusSeeder extends Seeder
+class StockOutStatusSeeder extends Seeder
 {
     public function run(): void
     {
@@ -16,7 +17,7 @@ class StockInStatusSeeder extends Seeder
         ];
 
         foreach ($statuses as $status) {
-            StockInStatus::create($status);
+            StockOutStatus::create($status);
         }
     }
 }

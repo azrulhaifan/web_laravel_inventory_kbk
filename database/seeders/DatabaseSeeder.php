@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             // ... other seeders
             StockMovementStatusSeeder::class,
             StockInStatusSeeder::class,
+            StockOutStatusSeeder::class,
         ]);
     }
 }

@@ -13,6 +13,7 @@ class StockMovement extends Model
         'product_bundle_variant_id',
         'stock_movement_status_id',
         'stock_in_id',
+        'stock_out_id',
         'reseller_id',
         'supplier_id',
         'type',
@@ -55,5 +56,10 @@ class StockMovement extends Model
     public function stockIn(): BelongsTo
     {
         return $this->belongsTo(StockIn::class);
+    }
+
+    public function stockOut(): BelongsTo
+    {
+        return $this->belongsTo(StockOut::class);
     }
 }
