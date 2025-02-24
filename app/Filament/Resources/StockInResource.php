@@ -33,6 +33,7 @@ class StockInResource extends Resource
                     ->live(),
 
                 Forms\Components\Select::make('supplier_id')
+                    ->label('Supplier / Vendor')
                     ->relationship('supplier', 'name')
                     ->required()
                     ->searchable()
