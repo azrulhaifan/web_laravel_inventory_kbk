@@ -6,10 +6,12 @@ use App\Filament\Resources\ProductVariantResource\Pages;
 use App\Models\ProductVariant;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductVariantResource extends Resource
 {
@@ -203,18 +205,6 @@ class ProductVariantResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('size')
-                    ->options([
-                        'S' => 'S',
-                        'M' => 'M',
-                        'L' => 'L',
-                        'XL' => 'XL',
-                        'NS' => 'NS',
-                    ]),
-                Tables\Filters\SelectFilter::make('color')
-                    ->relationship('color', 'name'),
-            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -223,7 +213,64 @@ class ProductVariantResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('size')
+                    ->options([
+                        'S' => 'S',
+                        'M' => 'M',
+                        'L' => 'L',
+                        'XL' => 'XL',
+                        'NS' => 'NS',
+                    ])
+                    ->label('Filter by Size'),
+
+                Tables\Filters\SelectFilter::make('color')
+                    ->relationship('color', 'name')
+                    ->label('Filter by Color'),
+
+                // Group stock filters
+                Tables\Filters\Filter::make('quantity')
+                    ->form([
+                        Forms\Components\Select::make('operator')
+                            ->label('Quantity')
+                            ->options([
+                                '>' => 'More than',
+                                '<=' => 'Less than or equal',
+                                '=' => 'Equal to',
+                                '0' => 'Out of Stock',
+                            ])
+                            ->default('>')
+                            ->required(),
+                        Forms\Components\TextInput::make('value')
+                            ->numeric()
+                            ->required()
+                            ->default(0)
+                            ->visible(fn(Get $get): bool => $get('operator') !== '0'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['operator'] === '0') {
+                            return $query->where('current_stock', '=', 0);
+                        }
+
+                        return $query->where('current_stock', $data['operator'], $data['value']);
+                    })
+                    ->label('Filter by Stock')
+                    ->indicateUsing(function (array $data): ?string {
+                        if ($data['operator'] === '0') {
+                            return 'Out of Stock';
+                        }
+
+                        $operators = [
+                            '>' => 'more than',
+                            '<=' => 'less than or equal to',
+                            '=' => 'equal to',
+                        ];
+
+                        return 'Stock ' . $operators[$data['operator']] . ' ' . $data['value'];
+                    }),
+            ])
+            ->filtersFormColumns(3); // Display filters in 3 columns
     }
 
     public static function getRelations(): array
