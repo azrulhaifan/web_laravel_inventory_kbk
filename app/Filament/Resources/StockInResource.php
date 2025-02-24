@@ -66,7 +66,6 @@ class StockInResource extends Resource
                     ])
                     ->default(2)
                     ->required()
-                    // ->helperText('Draft: Stok belum masuk gudang | Completed: Stok sudah masuk gudang | Cancelled: Dibatalkan')
                     ->helperText(new HtmlString('
                         <strong>Keterangan</strong>:
                         <ul class="list-disc list-inside space-y-1">
@@ -82,6 +81,14 @@ class StockInResource extends Resource
                         Forms\Components\Repeater::make('stockMovements')
                             ->relationship()
                             ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Get $get): array {
+                                return [
+                                    ...$data,
+                                    'warehouse_id' => $get('warehouse_id'),
+                                    'type' => 'in',
+                                    'stock_movement_status_id' => $get('stock_in_status_id'),
+                                ];
+                            })
+                            ->mutateRelationshipDataBeforeSaveUsing(function (array $data, Forms\Get $get): array {
                                 return [
                                     ...$data,
                                     'warehouse_id' => $get('warehouse_id'),
