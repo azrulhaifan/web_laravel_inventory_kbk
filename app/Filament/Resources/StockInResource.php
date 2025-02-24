@@ -83,7 +83,19 @@ class StockInResource extends Resource
                                     ->relationship('productVariant', 'name')
                                     ->required()
                                     ->searchable()
-                                    ->preload(),
+                                    ->preload()
+                                    ->live()
+                                    ->options(function (Forms\Get $get): array {
+                                        $selectedVariants = collect($get('../../stockMovements'))
+                                            ->pluck('product_variant_id')
+                                            ->filter();
+
+                                        return \App\Models\ProductVariant::query()
+                                            ->whereNotIn('id', $selectedVariants)
+                                            ->get()
+                                            ->pluck('name', 'id')
+                                            ->toArray();
+                                    }),
                                 Forms\Components\TextInput::make('quantity')
                                     ->numeric()
                                     ->required()
@@ -93,7 +105,7 @@ class StockInResource extends Resource
                             ->columns(2)
                             ->defaultItems(1)
                             ->addActionLabel('Add Item')
-                            ->cloneable()
+                            ->reorderable()
                             ->columnSpanFull(),
                     ]),
 
