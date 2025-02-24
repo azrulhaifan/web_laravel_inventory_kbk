@@ -188,6 +188,30 @@ class StockOutResource extends Resource
                 Forms\Components\Textarea::make('notes')
                     ->placeholder('Write any additional information here')
                     ->columnSpanFull(),
+
+                // Add edit section only for view page
+                Forms\Components\Section::make()
+                    ->schema([
+                        Forms\Components\Actions::make([
+                            Forms\Components\Actions\Action::make('edit')
+                                ->label('Edit Stock Out')
+                                ->icon('heroicon-m-pencil-square')
+                                ->url(
+                                    fn($record) =>
+                                    $record ? StockOutResource::getUrl('edit', ['record' => $record]) : null
+                                )
+                                ->visible(
+                                    fn($record, $livewire) =>
+                                    $record &&
+                                        $record->stock_out_status_id === 2 &&
+                                        $livewire instanceof Pages\ViewStockOut
+                                )
+                                ->color('primary')
+                                ->button(),
+                        ])
+                    ])
+                    ->columnSpanFull()
+                    ->visible(fn($livewire) => $livewire instanceof Pages\ViewStockOut),
             ]);
     }
 

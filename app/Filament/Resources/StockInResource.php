@@ -129,8 +129,32 @@ class StockInResource extends Resource
                     ]),
 
                 Forms\Components\Textarea::make('notes')
-                    ->placeholder('Write any addional information here')
+                    ->placeholder('Write any additional information here')
                     ->columnSpanFull(),
+
+                // Add edit section only for view page
+                Forms\Components\Section::make()
+                    ->schema([
+                        Forms\Components\Actions::make([
+                            Forms\Components\Actions\Action::make('edit')
+                                ->label('Edit Stock In')
+                                ->icon('heroicon-m-pencil-square')
+                                ->url(
+                                    fn($record) =>
+                                    $record ? StockInResource::getUrl('edit', ['record' => $record]) : null
+                                )
+                                ->visible(
+                                    fn($record, $livewire) =>
+                                    $record &&
+                                        $record->stock_in_status_id === 2 &&
+                                        $livewire instanceof Pages\ViewStockIn
+                                )
+                                ->color('primary')
+                                ->button(),
+                        ])
+                    ])
+                    ->columnSpanFull()
+                    ->visible(fn($livewire) => $livewire instanceof Pages\ViewStockIn),
             ]);
     }
 
@@ -155,7 +179,7 @@ class StockInResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status.name')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Draft / Pending' => 'warning',
                         'Completed' => 'success',
                         'Cancelled' => 'danger',
