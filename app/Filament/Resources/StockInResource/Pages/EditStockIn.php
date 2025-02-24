@@ -10,6 +10,9 @@ class EditStockIn extends EditRecord
 {
     protected static string $resource = StockInResource::class;
 
+    // SAFETY MEASURES
+    protected ?bool $hasDatabaseTransactions = true;
+
     // protected function getHeaderActions(): array
     // {
     //     return [
