@@ -79,7 +79,9 @@ class ProductVariantResource extends Resource
                     ->mask("9999999999")
                     ->stripCharacters('.,')
                     ->minValue(0)
-                    ->suffix('g'),
+                    ->default(0)
+                    ->suffix('g')
+                    ->required(),
                 Forms\Components\Section::make('Pricing')
                     ->description('Default prices from product master, you can override each variant price. Price for product variant will not affect product master price.')
                     ->schema([
