@@ -14,4 +14,9 @@ class CreateStockIn extends CreateRecord
 
     // SAFETY MEASURES
     protected ?bool $hasDatabaseTransactions = true;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
