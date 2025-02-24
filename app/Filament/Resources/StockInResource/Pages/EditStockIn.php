@@ -10,12 +10,12 @@ class EditStockIn extends EditRecord
 {
     protected static string $resource = StockInResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+    // protected function getHeaderActions(): array
+    // {
+    //     return [
+    //         Actions\DeleteAction::make(),
+    //     ];
+    // }
 
     protected function getRedirectUrl(): string
     {
