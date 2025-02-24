@@ -11,9 +11,72 @@ use Illuminate\Support\Facades\Log;
 
 class StockMovementObserver
 {
+    private function updateStock(StockMovement $stockMovement)
+    {
+        return DB::transaction(function () use ($stockMovement) {
+            // Lock the stock record
+            $stock = Stock::where([
+                'warehouse_id' => $stockMovement->warehouse_id,
+                'product_variant_id' => $stockMovement->product_variant_id,
+            ])->lockForUpdate()->first();
+
+            if (!$stock) {
+                $stock = Stock::create([
+                    'warehouse_id' => $stockMovement->warehouse_id,
+                    'product_variant_id' => $stockMovement->product_variant_id,
+                    'quantity' => 0
+                ]);
+            }
+
+            // Update quantity with locked record
+            $stock->quantity += $stockMovement->quantity;
+            $stock->save();
+
+            // Lock product variant for update
+            $productVariant = $stockMovement->productVariant()->lockForUpdate()->first();
+
+            // Get total stock with lock
+            $totalStock = Stock::where('product_variant_id', $stockMovement->product_variant_id)
+                ->lockForUpdate()
+                ->sum('quantity');
+
+            $productVariant->update([
+                'current_stock' => $totalStock
+            ]);
+
+            // Update bundle items with lock
+            ProductBundleVariantItem::where('product_variant_id', $stockMovement->product_variant_id)
+                ->lockForUpdate()
+                ->update(['current_stock' => $totalStock]);
+
+            // Update min_stock for affected bundles
+            DB::statement("
+                    UPDATE product_bundle_variants pbv
+                    INNER JOIN (
+                        SELECT pbi.product_bundle_variant_id, MIN(pv.current_stock) as min_stock
+                        FROM product_bundle_variant_items pbi
+                        JOIN product_variants pv ON pbi.product_variant_id = pv.id
+                        WHERE pbi.product_bundle_variant_id IN (
+                            SELECT DISTINCT product_bundle_variant_id 
+                            FROM product_bundle_variant_items 
+                            WHERE product_variant_id = ?
+                        )
+                        GROUP BY pbi.product_bundle_variant_id
+                        FOR UPDATE
+                    ) min_stocks ON pbv.id = min_stocks.product_bundle_variant_id
+                    SET pbv.min_stock = min_stocks.min_stock
+                ", [$stockMovement->product_variant_id]);
+
+            return [
+                'stock' => $stock,
+                'total_stock' => $totalStock
+            ];
+        });
+    }
+
     public function created(StockMovement $stockMovement): void
     {
-        Log::info('StockMovement Observer triggered', [
+        Log::info('StockMovement Observer -create- triggered', [
             'type' => $stockMovement->type,
             'status' => $stockMovement->stock_movement_status_id
         ]);
@@ -22,54 +85,14 @@ class StockMovementObserver
             (int) $stockMovement->stock_movement_status_id === 1
         ) {
             try {
-                DB::transaction(function () use ($stockMovement) {
-                    // Get or create stock record
-                    $stock = Stock::updateOrCreate(
-                        [
-                            'warehouse_id' => $stockMovement->warehouse_id,
-                            'product_variant_id' => $stockMovement->product_variant_id,
-                        ],
-                        [
-                            'quantity' => DB::raw('quantity + ' . $stockMovement->quantity) // quantity will be negative for 'out' type
-                        ]
-                    );
+                $result = $this->updateStock($stockMovement);
 
-                    // Update product variant's total stock
-                    $totalStock = Stock::where('product_variant_id', $stockMovement->product_variant_id)
-                        ->sum('quantity');
-
-                    $stockMovement->productVariant->update([
-                        'current_stock' => $totalStock
-                    ]);
-
-                    // Update bundle items current_stock
-                    ProductBundleVariantItem::where('product_variant_id', $stockMovement->product_variant_id)
-                        ->update(['current_stock' => $totalStock]);
-
-                    // Update min_stock for affected bundles in single query
-                    DB::statement("
-                        UPDATE product_bundle_variants pbv
-                        INNER JOIN (
-                            SELECT pbi.product_bundle_variant_id, MIN(pv.current_stock) as min_stock
-                            FROM product_bundle_variant_items pbi
-                            JOIN product_variants pv ON pbi.product_variant_id = pv.id
-                            WHERE pbi.product_bundle_variant_id IN (
-                                SELECT DISTINCT product_bundle_variant_id 
-                                FROM product_bundle_variant_items 
-                                WHERE product_variant_id = ?
-                            )
-                            GROUP BY pbi.product_bundle_variant_id
-                        ) min_stocks ON pbv.id = min_stocks.product_bundle_variant_id
-                        SET pbv.min_stock = min_stocks.min_stock
-                    ", [$stockMovement->product_variant_id]);
-
-                    Log::info('Stock updated successfully', [
-                        'product_id' => $stockMovement->product_variant_id,
-                        'warehouse_id' => $stockMovement->warehouse_id,
-                        'new_stock' => $stock->quantity,
-                        'total_stock' => $totalStock
-                    ]);
-                });
+                Log::info('Stock updated successfully', [
+                    'product_id' => $stockMovement->product_variant_id,
+                    'warehouse_id' => $stockMovement->warehouse_id,
+                    'new_stock' => $result['stock']->quantity,
+                    'total_stock' => $result['total_stock']
+                ]);
             } catch (\Exception $e) {
                 Log::error('Error updating stock', [
                     'error' => $e->getMessage(),
@@ -95,60 +118,15 @@ class StockMovementObserver
             (int) $stockMovement->stock_movement_status_id === 1 &&
             (int) $stockMovement->getOriginal('stock_movement_status_id') !== (int) $stockMovement->stock_movement_status_id
         ) {
-            Log::info('StockMovement Observer -update- started', [
-                'type' => $stockMovement->type,
-                'status' => $stockMovement->stock_movement_status_id
-            ]);
-
             try {
-                DB::transaction(function () use ($stockMovement) {
-                    // Get or create stock record
-                    $stock = Stock::updateOrCreate(
-                        [
-                            'warehouse_id' => $stockMovement->warehouse_id,
-                            'product_variant_id' => $stockMovement->product_variant_id,
-                        ],
-                        [
-                            'quantity' => DB::raw('quantity + ' . $stockMovement->quantity)
-                        ]
-                    );
+                $result = $this->updateStock($stockMovement);
 
-                    // Update product variant's total stock
-                    $totalStock = Stock::where('product_variant_id', $stockMovement->product_variant_id)
-                        ->sum('quantity');
-
-                    $stockMovement->productVariant->update([
-                        'current_stock' => $totalStock
-                    ]);
-
-                    // Update bundle items current_stock
-                    ProductBundleVariantItem::where('product_variant_id', $stockMovement->product_variant_id)
-                        ->update(['current_stock' => $totalStock]);
-
-                    // Update min_stock for affected bundles
-                    DB::statement("
-                        UPDATE product_bundle_variants pbv
-                        INNER JOIN (
-                            SELECT pbi.product_bundle_variant_id, MIN(pv.current_stock) as min_stock
-                            FROM product_bundle_variant_items pbi
-                            JOIN product_variants pv ON pbi.product_variant_id = pv.id
-                            WHERE pbi.product_bundle_variant_id IN (
-                                SELECT DISTINCT product_bundle_variant_id 
-                                FROM product_bundle_variant_items 
-                                WHERE product_variant_id = ?
-                            )
-                            GROUP BY pbi.product_bundle_variant_id
-                        ) min_stocks ON pbv.id = min_stocks.product_bundle_variant_id
-                        SET pbv.min_stock = min_stocks.min_stock
-                    ", [$stockMovement->product_variant_id]);
-
-                    Log::info('Stock updated successfully on status change', [
-                        'product_id' => $stockMovement->product_variant_id,
-                        'warehouse_id' => $stockMovement->warehouse_id,
-                        'new_stock' => $stock->quantity,
-                        'total_stock' => $totalStock
-                    ]);
-                });
+                Log::info('Stock updated successfully on status change', [
+                    'product_id' => $stockMovement->product_variant_id,
+                    'warehouse_id' => $stockMovement->warehouse_id,
+                    'new_stock' => $result['stock']->quantity,
+                    'total_stock' => $result['total_stock']
+                ]);
             } catch (\Exception $e) {
                 Log::error('Error updating stock on status change', [
                     'error' => $e->getMessage(),
