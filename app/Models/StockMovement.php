@@ -50,4 +50,9 @@ class StockMovement extends Model
     {
         return $this->belongsTo(Supplier::class);
     }
+
+    public function stockIn(): BelongsTo
+    {
+        return $this->belongsTo(StockIn::class);
+    }
 }

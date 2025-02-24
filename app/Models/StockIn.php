@@ -36,4 +36,27 @@ class StockIn extends Model
     {
         return $this->hasMany(StockMovement::class);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($stockIn) {
+            if (!isset($stockIn->reference_id)) {
+                $today = now();
+                $prefix = $today->format('ymd');
+
+                // Get the latest number for today
+                $latestStockIn = static::where('reference_id', 'like', $prefix . '%')
+                    ->orderBy('reference_id', 'desc')
+                    ->first();
+
+                $nextNumber = $latestStockIn
+                    ? intval(substr($latestStockIn->reference_id, -4)) + 1
+                    : 1;
+
+                $stockIn->reference_id = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            }
+        });
+    }
 }
