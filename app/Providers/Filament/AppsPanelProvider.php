@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Widgets\ProductStatsOverviewWidget;
+use App\Filament\Widgets\WarehouseStockChart;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -40,6 +41,7 @@ class AppsPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 ProductStatsOverviewWidget::class,
+                WarehouseStockChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
