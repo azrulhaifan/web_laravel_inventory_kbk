@@ -81,11 +81,25 @@ class StockMovementObserver
 
     public function updated(StockMovement $stockMovement): void
     {
+        Log::info('StockMovement Observer -update- triggered', [
+            'type' => $stockMovement->type,
+            'status' => $stockMovement->stock_movement_status_id,
+            'isDirty' => $stockMovement->isDirty('stock_movement_status_id'),
+            'wasChanged' => $stockMovement->wasChanged('stock_movement_status_id'),
+            'original' => $stockMovement->getOriginal('stock_movement_status_id'),
+            'current' => $stockMovement->stock_movement_status_id,
+        ]);
+
         if (
             $stockMovement->type === 'in' &&
-            $stockMovement->stock_movement_status_id === 1 &&
-            $stockMovement->wasChanged('stock_movement_status_id')
+            (int) $stockMovement->stock_movement_status_id === 1 &&
+            (int) $stockMovement->getOriginal('stock_movement_status_id') !== (int) $stockMovement->stock_movement_status_id
         ) {
+            Log::info('StockMovement Observer -update- started', [
+                'type' => $stockMovement->type,
+                'status' => $stockMovement->stock_movement_status_id
+            ]);
+
             try {
                 DB::transaction(function () use ($stockMovement) {
                     // Get or create stock record
