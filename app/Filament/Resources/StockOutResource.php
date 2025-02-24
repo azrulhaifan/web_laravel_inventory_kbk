@@ -82,6 +82,7 @@ class StockOutResource extends Resource
                                     'warehouse_id' => $get('warehouse_id'),
                                     'type' => 'out',
                                     'stock_movement_status_id' => $get('stock_out_status_id'),
+                                    'quantity' => -abs($data['quantity']), // Convert to negative
                                 ];
                             })
                             ->mutateRelationshipDataBeforeSaveUsing(function (array $data, Forms\Get $get): array {
@@ -90,6 +91,7 @@ class StockOutResource extends Resource
                                     'warehouse_id' => $get('warehouse_id'),
                                     'type' => 'out',
                                     'stock_movement_status_id' => $get('stock_out_status_id'),
+                                    'quantity' => -abs($data['quantity']), // Convert to negative
                                 ];
                             })
                             ->schema([
@@ -114,7 +116,8 @@ class StockOutResource extends Resource
                                     ->numeric()
                                     ->required()
                                     ->minValue(1)
-                                    ->default(1),
+                                    ->default(1)
+                                    ->formatStateUsing(fn($state) => abs($state)), // Show positive number
                             ])
                             ->columns(2)
                             ->defaultItems(1)
