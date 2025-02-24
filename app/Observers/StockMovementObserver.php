@@ -18,7 +18,9 @@ class StockMovementObserver
             'status' => $stockMovement->stock_movement_status_id
         ]);
 
-        if ($stockMovement->type === 'opname' && $stockMovement->stock_movement_status_id === 1) {
+        if (($stockMovement->type === 'opname' || $stockMovement->type === 'in') &&
+            $stockMovement->stock_movement_status_id === 1
+        ) {
             try {
                 DB::transaction(function () use ($stockMovement) {
                     // Get or create stock record
@@ -75,7 +77,5 @@ class StockMovementObserver
                 ]);
             }
         }
-
-        // TODO : update stock for stock-in
     }
 }
