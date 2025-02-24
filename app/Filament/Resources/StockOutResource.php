@@ -143,6 +143,9 @@ class StockOutResource extends Resource
                                     ->rules([
                                         function (Forms\Get $get) {
                                             return function (string $attribute, $value, \Closure $fail) use ($get) {
+                                                // Skip validation if status is cancelled (3)
+                                                if ((int) $get('../../stock_out_status_id') === 3) return;
+
                                                 $warehouseId = $get('warehouse_id');
                                                 $variantId = $get('product_variant_id');
 
