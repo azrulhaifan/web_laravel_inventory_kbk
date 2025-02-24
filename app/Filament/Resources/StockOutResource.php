@@ -66,6 +66,7 @@ class StockOutResource extends Resource
                     ')),
 
                 Forms\Components\Section::make('Items')
+                    ->description("Harap diingat, menyimpan stock out dengan status Draft / Pending terlalu lama, dapat menimbulkan redundansi data apabila ada order lain dengan item serupa yang sedang diproses.")
                     ->schema([
                         Forms\Components\Repeater::make('stockMovements')
                             ->relationship()
@@ -152,8 +153,22 @@ class StockOutResource extends Resource
                                                     'product_variant_id' => $variantId,
                                                 ])->value('quantity') ?? 0;
 
-                                                if ($value > $currentStock) {
-                                                    $fail("Insufficient stock. Available: {$currentStock}");
+                                                // Get total quantity for this product in this warehouse from other items
+                                                $totalQtyInRepeater = collect($get('../../stockMovements'))
+                                                    ->filter(
+                                                        fn($item) =>
+                                                        $item['warehouse_id'] == $warehouseId &&
+                                                            $item['product_variant_id'] == $variantId
+                                                    )
+                                                    ->sum('quantity');
+
+                                                // Subtract current item's quantity as it's included in the total
+                                                $totalQtyInRepeater -= $value;
+
+                                                $availableStock = $currentStock - $totalQtyInRepeater;
+
+                                                if ($value > $availableStock) {
+                                                    $fail("Insufficient stock. Available: {$availableStock} (Total ordered: {$totalQtyInRepeater})");
                                                 }
                                             };
                                         }
