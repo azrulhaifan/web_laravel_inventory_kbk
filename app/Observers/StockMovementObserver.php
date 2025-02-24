@@ -13,6 +13,15 @@ class StockMovementObserver
 {
     private function updateStock(StockMovement $stockMovement)
     {
+        // Check if we're in a transaction
+        $inTransaction = DB::transactionLevel() > 0;
+        Log::info('Stock Movement Transaction Check', [
+            'in_transaction' => $inTransaction,
+            'transaction_level' => DB::transactionLevel(),
+            'movement_id' => $stockMovement->id,
+            'type' => $stockMovement->type
+        ]);
+
         return DB::transaction(function () use ($stockMovement) {
             // Lock the stock record
             $stock = Stock::where([
