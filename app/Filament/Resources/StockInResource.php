@@ -137,6 +137,7 @@ class StockInResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')  // Add this line
             ->columns([
                 Tables\Columns\TextColumn::make('reference_id')
                     ->searchable()
