@@ -137,10 +137,16 @@ class StockOutResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('reference_id')
+                    ->label('Reference')
+                    ->formatStateUsing(fn($record) => "{$record->reference_id} \ " . ucfirst($record->reference_type))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('warehouse.name')
                     ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('supplier.name')
+                    ->searchable()
+                    ->default('-none-')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock_movements_count')
                     ->counts('stockMovements')
@@ -158,6 +164,20 @@ class StockOutResource extends Resource
                     ->label('Warehouse')
                     ->searchable()
                     ->preload(),
+                Tables\Filters\SelectFilter::make('reseller_id')
+                    ->relationship('reseller', 'name')
+                    ->label('Reseller')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\SelectFilter::make('reference_type')
+                    ->label('Reference ID Type')
+                    ->options([
+                        'auto' => 'Auto Generated',
+                        'direct' => 'Direct Sale',
+                        'shopee' => 'Shopee',
+                        'tokped' => 'Tokopedia',
+                        'tiktok' => 'TikTok Shop',
+                    ]),
                 Tables\Filters\SelectFilter::make('stock_out_status_id')
                     ->label('Status')
                     ->options([
@@ -171,8 +191,8 @@ class StockOutResource extends Resource
                     ->modalHeading('Stock Out Details'),
                 Tables\Actions\EditAction::make()
                     ->visible(fn(StockOut $record): bool => $record->stock_out_status_id === 2),
-                Tables\Actions\DeleteAction::make()
-                    ->visible(fn(StockOut $record): bool => $record->stock_out_status_id === 2),
+                // Tables\Actions\DeleteAction::make()
+                //     ->visible(fn(StockOut $record): bool => $record->stock_out_status_id === 2),
             ])
             ->bulkActions([
                 //
