@@ -138,7 +138,7 @@ class StockInResource extends Resource
     {
         return $table
             ->columns([
-Tables\Columns\TextColumn::make('reference_id')
+                Tables\Columns\TextColumn::make('reference_id')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('warehouse.name')
@@ -182,8 +182,8 @@ Tables\Columns\TextColumn::make('reference_id')
                     ->modalHeading('Stock In Details'),
                 Tables\Actions\EditAction::make()
                     ->visible(fn(StockIn $record): bool => $record->stock_in_status_id === 2), // Only for Draft/Pending
-                Tables\Actions\DeleteAction::make()
-                    ->visible(fn(StockIn $record): bool => in_array($record->stock_in_status_id, [2])), // Only for Draft/Pending
+                // Tables\Actions\DeleteAction::make()
+                //     ->visible(fn(StockIn $record): bool => in_array($record->stock_in_status_id, [2])), // Only for Draft/Pending
             ])
             ->bulkActions([
                 //
