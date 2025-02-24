@@ -44,7 +44,7 @@ class StockIn extends Model
         static::creating(function ($stockIn) {
             if (!isset($stockIn->reference_id)) {
                 $today = now();
-                $prefix = $today->format('ymd');
+                $prefix = "SI-" . $today->format('ymd');
 
                 // Get the latest number for today
                 $latestStockIn = static::where('reference_id', 'like', $prefix . '%')
