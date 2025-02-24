@@ -9,4 +9,7 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateStockOpname extends CreateRecord
 {
     protected static string $resource = StockOpnameResource::class;
+
+    // SAFETY MEASURES
+    protected ?bool $hasDatabaseTransactions = true;
 }

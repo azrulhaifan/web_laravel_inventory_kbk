@@ -10,6 +10,9 @@ class EditStockOpname extends EditRecord
 {
     protected static string $resource = StockOpnameResource::class;
 
+    // SAFETY MEASURES
+    protected ?bool $hasDatabaseTransactions = true;
+
     protected function getHeaderActions(): array
     {
         return [
