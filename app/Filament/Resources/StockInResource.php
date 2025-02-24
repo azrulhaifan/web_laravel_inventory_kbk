@@ -138,6 +138,9 @@ class StockInResource extends Resource
     {
         return $table
             ->columns([
+Tables\Columns\TextColumn::make('reference_id')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('warehouse.name')
                     ->searchable()
                     ->sortable(),
@@ -145,10 +148,12 @@ class StockInResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
+                Tables\Columns\TextColumn::make('stock_movements_count')
+                    ->counts('stockMovements')
+                    ->label('Item')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status.name')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('reference_type')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
