@@ -10,6 +10,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
+use Illuminate\Support\Facades\DB;
+
 class StockInResource extends Resource
 {
     protected static ?string $model = StockIn::class;
@@ -26,10 +28,12 @@ class StockInResource extends Resource
                     ->relationship('warehouse', 'name')
                     ->required()
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->live(),
 
                 Forms\Components\Select::make('supplier_id')
                     ->relationship('supplier', 'name')
+                    ->required()
                     ->searchable()
                     ->preload(),
 
@@ -53,9 +57,45 @@ class StockInResource extends Resource
                     ->columnSpanFull(),
 
                 Forms\Components\Select::make('stock_in_status_id')
-                    ->relationship('status', 'name')
-                    ->required()
-                    ->preload(),
+                    ->label('Status')
+                    ->options([
+                        2 => 'Draft / Pending',
+                        1 => 'Completed',
+                        3 => 'Cancelled',
+                    ])
+                    ->default(2)
+                    ->required(),
+
+                Forms\Components\Section::make('Items')
+                    ->schema([
+                        Forms\Components\Repeater::make('stockMovements')
+                            ->relationship()
+                            ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Get $get): array {
+                                return [
+                                    ...$data,
+                                    'warehouse_id' => $get('warehouse_id'),
+                                    'type' => 'in',
+                                    'stock_movement_status_id' => $get('stock_in_status_id'),
+                                ];
+                            })
+                            ->schema([
+                                Forms\Components\Select::make('product_variant_id')
+                                    ->relationship('productVariant', 'name')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload(),
+                                Forms\Components\TextInput::make('quantity')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(1)
+                                    ->default(1),
+                            ])
+                            ->columns(2)
+                            ->defaultItems(1)
+                            ->addActionLabel('Add Item')
+                            ->cloneable()
+                            ->columnSpanFull(),
+                    ]),
 
                 Forms\Components\Textarea::make('notes')
                     ->columnSpanFull(),

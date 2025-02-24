@@ -12,6 +12,7 @@ class StockMovement extends Model
         'product_variant_id',
         'product_bundle_variant_id',
         'stock_movement_status_id',
+        'stock_in_id',
         'reseller_id',
         'supplier_id',
         'type',

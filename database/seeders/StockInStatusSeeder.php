@@ -10,9 +10,7 @@ class StockInStatusSeeder extends Seeder
     public function run(): void
     {
         $statuses = [
-            ['name' => 'Draft', 'color' => 'gray'],
-            ['name' => 'Pending', 'color' => 'warning'],
-            ['name' => 'Processing', 'color' => 'info'],
+            ['name' => 'Draft / Pending', 'color' => 'gray'],
             ['name' => 'Completed', 'color' => 'success'],
             ['name' => 'Cancelled', 'color' => 'danger'],
         ];
