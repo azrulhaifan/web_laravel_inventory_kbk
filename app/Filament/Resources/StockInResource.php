@@ -11,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 
 class StockInResource extends Resource
 {
@@ -64,6 +65,16 @@ class StockInResource extends Resource
                         3 => 'Cancelled',
                     ])
                     ->default(2)
+                    ->required()
+                    // ->helperText('Draft: Stok belum masuk gudang | Completed: Stok sudah masuk gudang | Cancelled: Dibatalkan')
+                    ->helperText(new HtmlString('
+                        <strong>Keterangan</strong>:
+                        <ul class="list-disc list-inside space-y-1">
+                            <li><strong>Draft</strong>: Stok belum masuk gudang</li>
+                            <li><strong>Completed</strong>: Stok sudah masuk gudang, final dan tidak dapat dirubah</li>
+                            <li><strong>Cancelled</strong>: Stok dibatalkan</li>
+                        </ul>
+                    '))
                     ->required(),
 
                 Forms\Components\Section::make('Items')
