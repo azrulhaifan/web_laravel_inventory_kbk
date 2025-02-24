@@ -9,18 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class StockOut extends Model
 {
     protected $fillable = [
-        'warehouse_id',
         'reseller_id',
         'reference_type',
         'reference_id',
         'notes',
         'stock_out_status_id',
     ];
-
-    public function warehouse(): BelongsTo
-    {
-        return $this->belongsTo(Warehouse::class);
-    }
 
     public function reseller(): BelongsTo
     {
